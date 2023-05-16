@@ -7,26 +7,61 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+
+class User(Base):
+    __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
+    last_name = Column(String(250), nullable=False)
+    correo = Column(String(50), nullable=False)
+    contrasena = Column(String(50), nullable=False)
+    fecha_registro = Column(String(50), nullable=False)
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+    comments = relationship("Comments", back_populates="user")
+
+    # favorite_character = relationship("Favorite_Character", back_populates="user")
+
+
+class Post(Base):
+    __tablename__ = 'posts'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    name = Column(String(50), nullable=False)
+    fecha = Column(Integer, nullable=False)
+    user = relationship("User", back_populates="posts")
+
+
+class Comment(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    fecha = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    post_id = Column(Integer, ForeignKey('post.id'))
+    user = relationship("User", back_populates= "comments")
+    post = relationship("Post", back_populates= "comments")
+
+
+class Favorit_Post(Base):
+    __tablename__ = 'favorit_post'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    post_id = Column(Integer, ForeignKey('post.id'))
+    posts = relationship("Post", back_populates="favorite_post")
+
+
+class Friend(Base):
+    __tablename__ = 'friends'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    friends_id = Column(Integer, ForeignKey('friends.id'))
+    user = relationship(User, back_populates="friends")
 
     def to_dict(self):
         return {}
+
+
+# Draw from SQLAlchemy base
+render_er(Base, 'diagram.png')
 
 ## Draw from SQLAlchemy base
 try:
